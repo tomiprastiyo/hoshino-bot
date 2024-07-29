@@ -1,6 +1,7 @@
-import { Message } from "discord.js";
-
-export interface Command {
-  trigger: string;
-  execute: (message: Message) => void;
+export class Command {
+  constructor(
+    public name: string,
+    public description: string,
+    public execute: Function
+  ) {}
 }
