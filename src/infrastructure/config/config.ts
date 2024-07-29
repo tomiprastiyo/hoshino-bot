@@ -1,15 +1,8 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 
-interface Config {
-  discordToken: string;
-}
+dotenv.config();
 
-const config: Config = {
-  discordToken: process.env.DISCORD_TOKEN || "",
+export const config = {
+  token: process.env.DISCORD_TOKEN || "",
+  prefix: process.env.PREFIX || "!",
 };
-
-if (!config.discordToken) {
-  throw new Error("DISCORD_TOKEN must be provided");
-}
-
-export default config;

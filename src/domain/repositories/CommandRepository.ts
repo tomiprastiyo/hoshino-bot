@@ -1,13 +1,17 @@
 import { Command } from "../entities/Command";
 
 export class CommandRepository {
-  private commands: Command[] = [];
+  private commands: Map<string, Command> = new Map();
 
-  public addCommand(command: Command): void {
-    this.commands.push(command);
+  public addCommand(command: Command) {
+    this.commands.set(command.name, command);
   }
 
-  public getCommands(): Command[] {
-    return this.commands;
+  public getCommand(name: string): Command | undefined {
+    return this.commands.get(name);
+  }
+
+  public getAllCommands(): Command[] {
+    return Array.from(this.commands.values());
   }
 }
