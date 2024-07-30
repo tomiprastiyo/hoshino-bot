@@ -11,10 +11,12 @@
   "license": "ISC",
   "description": "A Discord bot built with TypeScript and clean architecture.",
   "dependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^22.0.0",
     "canvas": "^2.11.2",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
