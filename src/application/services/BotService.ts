@@ -123,13 +123,21 @@ export class BotService {
   }
 
   private async handlePunchCommand(message: Message) {
-    const user =
-      message.mentions.users.first() ||
-      this.client.users.cache.find(
-        (user) => user.tag === message.content.split(" ")[1]
-      );
-    if (!user) return;
+    const args = message.content.split(" ");
+    const target = args[1];
 
+    // Determine the user to punch
+    let user;
+    if (message.mentions.users.size > 0) {
+      user = message.mentions.users.first();
+    } else if (this.client.users.cache.find((user) => user.tag === target)) {
+      user = this.client.users.cache.find((user) => user.tag === target);
+    }
+
+    // Determine the text to use
+    const text = user ? user.displayName : target;
+
+    // Load and draw on canvas
     const canvas = Canvas.createCanvas(500, 500);
     const context = canvas.getContext("2d");
     const background = await Canvas.loadImage(
@@ -139,13 +147,14 @@ export class BotService {
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
     context.font = "60px bold sans-serif";
     context.fillStyle = "#000";
-    const name = `Pukul ${user.displayName}`;
+    const name = `Pukul ${text}`;
     context.fillText(
       name,
       canvas.width / 2 - context.measureText(name).width / 2,
       450
     );
 
+    // Send the image
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "punch.png",
     });
