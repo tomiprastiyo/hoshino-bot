@@ -53,6 +53,9 @@ export class BotService {
       case "kiss":
         await this.handleKissCommand(message);
         break;
+      case "come":
+        await this.handleComeCommand(message);
+        break;
       default:
         message.channel.send("Command not recognized.");
     }
@@ -183,6 +186,41 @@ export class BotService {
 
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "kiss.png",
+    });
+    message.channel.send({ files: [attachment] });
+  }
+
+  private async handleComeCommand(message: Message) {
+    const [userOne, userTwo] = message.mentions.users;
+    const text = message.content.split(" ").slice(3).join(" ");
+    if (!userOne || !userTwo || !text) return;
+
+    const canvas = Canvas.createCanvas(1366, 768);
+    const context = canvas.getContext("2d");
+    const background = await Canvas.loadImage(
+      path.join(__dirname, "../../assets/images/come.jpg")
+    );
+
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    const avatarOne = await Canvas.loadImage(
+      userOne[1].displayAvatarURL({ extension: "png" }) || ""
+    );
+    const avatarTwo = await Canvas.loadImage(
+      userTwo[1].displayAvatarURL({ extension: "png" }) || ""
+    );
+    context.drawImage(avatarOne, 250, 275, 200, 200);
+    context.drawImage(avatarTwo, 800, 250, 200, 200);
+    context.font = "60px bold sans-serif";
+    context.fillStyle = "#fff";
+    const name = `${text}`;
+    context.fillText(
+      name,
+      canvas.width / 2 - context.measureText(name).width / 2,
+      700
+    );
+
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+      name: "come.png",
     });
     message.channel.send({ files: [attachment] });
   }
