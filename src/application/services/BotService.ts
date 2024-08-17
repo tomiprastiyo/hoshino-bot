@@ -50,6 +50,9 @@ export class BotService {
       case "punch":
         await this.handlePunchCommand(message);
         break;
+      case "kiss":
+        await this.handleKissCommand(message);
+        break;
       default:
         message.channel.send("Command not recognized.");
     }
@@ -157,6 +160,29 @@ export class BotService {
     // Send the image
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "punch.png",
+    });
+    message.channel.send({ files: [attachment] });
+  }
+
+  private async handleKissCommand(message: Message) {
+    const user = message.mentions.users.first();
+    if (!user) return;
+
+    const canvas = Canvas.createCanvas(1366, 768);
+    const context = canvas.getContext("2d");
+    const background = await Canvas.loadImage(
+      path.join(__dirname, "../../assets/images/kiss.jpg")
+    );
+
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    const avatar = await Canvas.loadImage(
+      user.displayAvatarURL({ extension: "png" }) || ""
+    );
+    context.rotate((-10 * Math.PI) / 180);
+    context.drawImage(avatar, 425, 350, 200, 200);
+
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+      name: "kiss.png",
     });
     message.channel.send({ files: [attachment] });
   }
