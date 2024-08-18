@@ -221,7 +221,6 @@ export class BotService {
         let positionCustomX = positionX;
         if (i > 0) {
           positionCustomX = positionX + 100 * i;
-          console.log(positionCustomX);
         }
 
         context.drawImage(
