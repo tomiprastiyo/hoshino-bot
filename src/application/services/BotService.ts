@@ -56,6 +56,9 @@ export class BotService {
       case "come":
         await this.handleComeCommand(message);
         break;
+      case "slap":
+        await this.handleSlapCommand(message);
+        break;
       default:
         message.channel.send("Command not recognized.");
     }
@@ -249,6 +252,29 @@ export class BotService {
 
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "come.png",
+    });
+    message.channel.send({ files: [attachment] });
+  }
+
+  private async handleSlapCommand(message: Message) {
+    const user = message.mentions.users.first();
+    if (!user) return;
+
+    const canvas = Canvas.createCanvas(1366, 768);
+    const context = canvas.getContext("2d");
+    const background = await Canvas.loadImage(
+      path.join(__dirname, "../../assets/images/slap.jpg")
+    );
+
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    const avatar = await Canvas.loadImage(
+      user.displayAvatarURL({ extension: "png" }) || ""
+    );
+    context.rotate((5 * Math.PI) / 180);
+    context.drawImage(avatar, 125, 200, 500, 500);
+
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+      name: "slap.png",
     });
     message.channel.send({ files: [attachment] });
   }
