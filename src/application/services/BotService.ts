@@ -60,7 +60,7 @@ export class BotService {
       case "slap":
         await this.handleSlapCommand(message);
         break;
-      case "ditinggalmabar":
+      case "ditinggal":
         await this.handleAbandonedCommand(message);
         break;
       case "help":
