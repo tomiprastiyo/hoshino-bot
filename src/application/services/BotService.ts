@@ -1,6 +1,7 @@
 import { Client, Message, EmbedBuilder, AttachmentBuilder } from "discord.js";
 import { CommandRepository } from "../../domain/repositories/CommandRepository";
-import Canvas from "canvas";
+import { createCanvas, loadImage } from "canvas";
+import canvasGif from "canvas-gif";
 import path from "path";
 
 export class BotService {
@@ -59,6 +60,12 @@ export class BotService {
       case "slap":
         await this.handleSlapCommand(message);
         break;
+      case "ditinggalmabar":
+        await this.handleAbandonedCommand(message);
+        break;
+      case "help":
+        // await this.handleHelpCommand(message);
+        break;
       default:
         message.channel.send("Command not recognized.");
     }
@@ -85,14 +92,14 @@ export class BotService {
     const user = message.mentions.users.first();
     if (!user) return;
 
-    const canvas = Canvas.createCanvas(1366, 768);
+    const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
-    const background = await Canvas.loadImage(
+    const background = await loadImage(
       path.join(__dirname, "../../assets/images/slam.jpg")
     );
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    const avatar = await Canvas.loadImage(
+    const avatar = await loadImage(
       user.displayAvatarURL({ extension: "png" }) || ""
     );
     context.rotate((-20 * Math.PI) / 180);
@@ -108,9 +115,9 @@ export class BotService {
     const user = message.mentions.users.first();
     if (!user) return;
 
-    const canvas = Canvas.createCanvas(1200, 1300);
+    const canvas = createCanvas(1200, 1300);
     const context = canvas.getContext("2d");
-    const background = await Canvas.loadImage(
+    const background = await loadImage(
       path.join(__dirname, "../../assets/images/hug.jpg")
     );
 
@@ -119,7 +126,7 @@ export class BotService {
     context.arc(700, 680, 175, 0, Math.PI * 2, true);
     context.closePath();
     context.clip();
-    const avatar = await Canvas.loadImage(
+    const avatar = await loadImage(
       user.displayAvatarURL({ extension: "png" }) || ""
     );
     context.rotate((-40 * Math.PI) / 180);
@@ -148,9 +155,9 @@ export class BotService {
     if (!text) return;
 
     // Load and draw on canvas
-    const canvas = Canvas.createCanvas(500, 500);
+    const canvas = createCanvas(500, 500);
     const context = canvas.getContext("2d");
-    const background = await Canvas.loadImage(
+    const background = await loadImage(
       path.join(__dirname, "../../assets/images/punch.jpg")
     );
 
@@ -175,14 +182,14 @@ export class BotService {
     const user = message.mentions.users.first();
     if (!user) return;
 
-    const canvas = Canvas.createCanvas(1366, 768);
+    const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
-    const background = await Canvas.loadImage(
+    const background = await loadImage(
       path.join(__dirname, "../../assets/images/kiss.jpg")
     );
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    const avatar = await Canvas.loadImage(
+    const avatar = await loadImage(
       user.displayAvatarURL({ extension: "png" }) || ""
     );
     context.rotate((-10 * Math.PI) / 180);
@@ -203,9 +210,9 @@ export class BotService {
 
     if (text === "") return;
 
-    const canvas = Canvas.createCanvas(1366, 768);
+    const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
-    const background = await Canvas.loadImage(
+    const background = await loadImage(
       path.join(__dirname, "../../assets/images/come.jpg")
     );
 
@@ -218,7 +225,7 @@ export class BotService {
       const positionY = 250;
 
       for (let i = 0; i < mentions.size; i++) {
-        const avatar = await Canvas.loadImage(
+        const avatar = await loadImage(
           users[i].displayAvatarURL({ extension: "png" })
         );
 
@@ -237,7 +244,7 @@ export class BotService {
       }
     }
 
-    const avatarAuthor = await Canvas.loadImage(
+    const avatarAuthor = await loadImage(
       message.author.displayAvatarURL({ extension: "png" }) || ""
     );
     context.drawImage(avatarAuthor, 250, 275, 200, 200);
@@ -260,14 +267,14 @@ export class BotService {
     const user = message.mentions.users.first();
     if (!user) return;
 
-    const canvas = Canvas.createCanvas(1366, 768);
+    const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
-    const background = await Canvas.loadImage(
+    const background = await loadImage(
       path.join(__dirname, "../../assets/images/slap.jpg")
     );
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    const avatar = await Canvas.loadImage(
+    const avatar = await loadImage(
       user.displayAvatarURL({ extension: "png" }) || ""
     );
     context.rotate((5 * Math.PI) / 180);
@@ -277,5 +284,27 @@ export class BotService {
       name: "slap.png",
     });
     message.channel.send({ files: [attachment] });
+  }
+
+  private async handleAbandonedCommand(message: Message) {
+    const text = "Ditinggal Mabar";
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/abandoned.gif"),
+      (ctx, width, height, totalFrames, currentFrame) => {
+        const word = `${text}`;
+        ctx.font = "60px bold sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 350);
+      },
+      {
+        fps: 60,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "abandoned.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
   }
 }
