@@ -209,52 +209,35 @@ export class BotService {
 
     if (mentions.size > 0) {
       const users = Array.from(mentions.values());
+      const avatarSize = 200;
+      const positionX = 800;
+      const positionY = 250;
 
-      if (mentions.size > 2) {
-        const avatarSize = 200;
-        const positions = [
-          { x: 250, y: 275 },
-          { x: 800, y: 250 },
-        ];
+      for (let i = 0; i < mentions.size; i++) {
+        const avatar = await Canvas.loadImage(
+          users[i].displayAvatarURL({ extension: "png" })
+        );
 
-        for (let i = 0; i < mentions.size; i++) {
-          const avatar = await Canvas.loadImage(
-            users[i].displayAvatarURL({ extension: "png" })
-          );
-
-          let positionCustom = positions[i];
-          if (i === 2) {
-            positionCustom = positions[1];
-            positionCustom.x = 800 + 100 * (i - 1);
-          }
-
-          context.drawImage(
-            avatar,
-            positionCustom.x,
-            positionCustom.y,
-            avatarSize,
-            avatarSize
-          );
+        let positionCustomX = positionX;
+        if (i > 0) {
+          positionCustomX = positionX + 100 * i;
+          console.log(positionCustomX);
         }
-      }
-      if (mentions.size === 2) {
-        const avatarOne = await Canvas.loadImage(
-          users[0].displayAvatarURL({ extension: "png" })
+
+        context.drawImage(
+          avatar,
+          positionCustomX,
+          positionY,
+          avatarSize,
+          avatarSize
         );
-        const avatarTwo = await Canvas.loadImage(
-          users[1].displayAvatarURL({ extension: "png" })
-        );
-        context.drawImage(avatarOne, 250, 275, 200, 200);
-        context.drawImage(avatarTwo, 800, 250, 200, 200);
-      }
-      if (mentions.size === 1) {
-        const avatarOne = await Canvas.loadImage(
-          users[0].displayAvatarURL({ extension: "png" })
-        );
-        context.drawImage(avatarOne, 800, 250, 200, 200);
       }
     }
 
+    const avatarAuthor = await Canvas.loadImage(
+      message.author.displayAvatarURL({ extension: "png" }) || ""
+    );
+    context.drawImage(avatarAuthor, 250, 275, 200, 200);
     context.font = "60px bold sans-serif";
     context.fillStyle = "#fff";
     const name = `${text}`;
