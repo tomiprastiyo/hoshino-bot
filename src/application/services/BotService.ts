@@ -142,6 +142,7 @@ export class BotService {
 
     // Determine the text to use
     const text = user ? user.displayName : target;
+    if (!text) return;
 
     // Load and draw on canvas
     const canvas = Canvas.createCanvas(500, 500);
