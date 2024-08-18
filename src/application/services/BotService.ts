@@ -67,7 +67,7 @@ export class BotService {
         await this.handleLordCommand(message);
         break;
       case "help":
-        // await this.handleHelpCommand(message);
+        await this.handleHelpCommand(message);
         break;
       default:
         message.channel.send("Command not recognized.");
@@ -331,5 +331,31 @@ export class BotService {
       name: "lord.png",
     });
     message.channel.send({ files: [attachment] });
+  }
+
+  private async handleHelpCommand(message: Message) {
+    const embed = new EmbedBuilder()
+      .setColor(0x0099ff)
+      .setTitle("Hoshino Bot Commands")
+      .setDescription("Here are the commands you can use with Hoshino Bot:")
+      .addFields(
+        {
+          name: "Avatar",
+          value: "Displays the avatar of a user",
+          inline: true,
+        },
+        { name: "Slam", value: "Performs a slam action", inline: true },
+        { name: "Hug", value: "Sends a hug", inline: true },
+        { name: "Punch", value: "Powers a punch", inline: true },
+        { name: "Kiss", value: "Sends a kiss", inline: true },
+        { name: "Come", value: "Calls someone to come", inline: true },
+        { name: "Slap", value: "Performs a slap action", inline: true },
+        { name: "Ditinggal", value: "Mentions someone who left", inline: true },
+        { name: "Lord", value: "Displays the lord command", inline: true },
+        { name: "Help", value: "Displays this help message", inline: true }
+      )
+      .setFooter({ text: "Use !command for more details on each command" });
+
+    message.channel.send({ embeds: [embed] });
   }
 }
