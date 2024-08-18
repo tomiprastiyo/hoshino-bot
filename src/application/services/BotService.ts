@@ -63,6 +63,9 @@ export class BotService {
       case "ditinggal":
         await this.handleAbandonedCommand(message);
         break;
+      case "lord":
+        await this.handleLordCommand(message);
+        break;
       case "help":
         // await this.handleHelpCommand(message);
         break;
@@ -306,5 +309,27 @@ export class BotService {
       });
       message.channel.send({ files: [attachment] });
     });
+  }
+
+  private async handleLordCommand(message: Message) {
+    const user = message.mentions.users.first();
+    if (!user) return;
+
+    const canvas = createCanvas(768, 1366);
+    const context = canvas.getContext("2d");
+    const background = await loadImage(
+      path.join(__dirname, "../../assets/images/lord.jpg")
+    );
+
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    const avatar = await loadImage(
+      user.displayAvatarURL({ extension: "png" }) || ""
+    );
+    context.drawImage(avatar, 325, 400, 200, 200);
+
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+      name: "lord.png",
+    });
+    message.channel.send({ files: [attachment] });
   }
 }
