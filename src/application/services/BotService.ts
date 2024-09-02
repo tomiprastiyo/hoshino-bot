@@ -206,13 +206,19 @@ export class BotService {
 
   private async handleComeCommand(message: Message) {
     const mentions = message.mentions.users;
-    const text = message.content
+
+    // Remove the command prefix and mentions
+    const cleanedContent = message.content
       .split(" ")
-      .filter((word) => !mentions.has(word.replace(/[<@!>]/g, "")))
-      .slice(1)
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
+      .filter((word) => !mentions.has(word.replace(/[<@!>]/g, ""))) // Remove mentions
+      .slice(1) // Remove the command prefix (assuming the command is the first word)
+      .join(" "); // Join the remaining words back into a single string
+
+    // Clean up extra characters and normalize spaces
+    const text = cleanedContent
+      .replace(/[|_]+/g, "") // Remove | and _
+      .replace(/\s+/g, " ") // Replace multiple spaces with a single space
+      .trim(); // Trim leading and trailing spaces
 
     if (text === "") return;
 
