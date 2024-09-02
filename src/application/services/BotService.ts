@@ -81,12 +81,19 @@ export class BotService {
         (user) => user.tag === message.content.split(" ")[1]
       ) ||
       message.author;
+
+    const avatar =
+      message.guild?.members.cache
+        .get(user.id)
+        ?.displayAvatarURL({ extension: "png", size: 2048 }) ||
+      user.displayAvatarURL({ extension: "png", size: 2048 });
+
     const embed = new EmbedBuilder()
       .setAuthor({ name: user.tag })
       .setTitle("Direct Link")
-      .setURL(user.displayAvatarURL({ extension: "png", size: 2048 }))
+      .setURL(avatar || "")
       .setColor("#275BF0")
-      .setImage(user.displayAvatarURL({ extension: "png", size: 2048 }))
+      .setImage(avatar || "")
       .setTimestamp();
     message.channel.send({ embeds: [embed] });
   }
@@ -103,7 +110,11 @@ export class BotService {
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
     const avatar = await loadImage(
-      user.displayAvatarURL({ extension: "png" }) || ""
+      message.guild?.members.cache
+        .get(user.id)
+        ?.displayAvatarURL({ extension: "png" }) ||
+        user.displayAvatarURL({ extension: "png" }) ||
+        ""
     );
     context.rotate((-20 * Math.PI) / 180);
     context.drawImage(avatar, 550, 350, 200, 200);
@@ -130,7 +141,11 @@ export class BotService {
     context.closePath();
     context.clip();
     const avatar = await loadImage(
-      user.displayAvatarURL({ extension: "png" }) || ""
+      message.guild?.members.cache
+        .get(user.id)
+        ?.displayAvatarURL({ extension: "png" }) ||
+        user.displayAvatarURL({ extension: "png" }) ||
+        ""
     );
     context.rotate((-40 * Math.PI) / 180);
     context.drawImage(avatar, -75, 780, 400, 400);
@@ -193,7 +208,11 @@ export class BotService {
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
     const avatar = await loadImage(
-      user.displayAvatarURL({ extension: "png" }) || ""
+      message.guild?.members.cache
+        .get(user.id)
+        ?.displayAvatarURL({ extension: "png" }) ||
+        user.displayAvatarURL({ extension: "png" }) ||
+        ""
     );
     context.rotate((-10 * Math.PI) / 180);
     context.drawImage(avatar, 425, 350, 200, 200);
@@ -238,7 +257,11 @@ export class BotService {
 
       for (let i = 0; i < mentions.size; i++) {
         const avatar = await loadImage(
-          users[i].displayAvatarURL({ extension: "png" })
+          message.guild?.members.cache
+            .get(users[i].id)
+            ?.displayAvatarURL({ extension: "png" }) ||
+            users[i].displayAvatarURL({ extension: "png" }) ||
+            ""
         );
 
         let positionCustomX = positionX;
@@ -287,7 +310,11 @@ export class BotService {
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
     const avatar = await loadImage(
-      user.displayAvatarURL({ extension: "png" }) || ""
+      message.guild?.members.cache
+        .get(user.id)
+        ?.displayAvatarURL({ extension: "png" }) ||
+        user.displayAvatarURL({ extension: "png" }) ||
+        ""
     );
     context.rotate((5 * Math.PI) / 180);
     context.drawImage(avatar, 125, 200, 500, 500);
@@ -332,7 +359,11 @@ export class BotService {
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
     const avatar = await loadImage(
-      user.displayAvatarURL({ extension: "png" }) || ""
+      message.guild?.members.cache
+        .get(user.id)
+        ?.displayAvatarURL({ extension: "png" }) ||
+        user.displayAvatarURL({ extension: "png" }) ||
+        ""
     );
     context.drawImage(avatar, 325, 400, 200, 200);
 
