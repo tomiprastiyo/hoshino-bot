@@ -208,8 +208,11 @@ export class BotService {
     const mentions = message.mentions.users;
     const text = message.content
       .split(" ")
-      .slice(mentions.size + 1)
-      .join(" ");
+      .filter((word) => !mentions.has(word.replace(/[<@!>]/g, "")))
+      .slice(1)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
 
     if (text === "") return;
 
