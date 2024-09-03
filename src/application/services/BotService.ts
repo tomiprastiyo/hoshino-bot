@@ -86,7 +86,8 @@ export class BotService {
       message.guild?.members.cache
         .get(user.id)
         ?.displayAvatarURL({ extension: "png", size: 2048 }) ||
-      user.displayAvatarURL({ extension: "png", size: 2048 });
+      user.displayAvatarURL({ extension: "png", size: 2048 }) ||
+      "";
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: user.tag })
@@ -280,7 +281,11 @@ export class BotService {
     }
 
     const avatarAuthor = await loadImage(
-      message.author.displayAvatarURL({ extension: "png" }) || ""
+      message.guild?.members.cache
+        .get(message.author.id)
+        ?.displayAvatarURL({ extension: "png", size: 2048 }) ||
+        message.author.displayAvatarURL({ extension: "png", size: 2048 }) ||
+        ""
     );
     context.drawImage(avatarAuthor, 250, 275, 200, 200);
     context.font = "60px bold sans-serif";
