@@ -212,8 +212,12 @@ export class BotService {
 
     const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
+
+    // Randomize the background
+    const randomImage = Math.floor(Math.random() * 2) + 1;
+
     const background = await loadImage(
-      path.join(__dirname, "../../assets/images/kiss.jpg")
+      path.join(__dirname, `../../assets/images/kiss/${randomImage}.jpg`)
     );
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
@@ -224,8 +228,18 @@ export class BotService {
         user.displayAvatarURL({ extension: "png" }) ||
         ""
     );
-    context.rotate((-10 * Math.PI) / 180);
-    context.drawImage(avatar, 425, 350, 200, 200);
+
+    switch (randomImage) {
+      case 1:
+        context.rotate((-10 * Math.PI) / 180);
+        context.drawImage(avatar, 425, 350, 200, 200);
+        break;
+      case 2:
+        context.drawImage(avatar, 425, 100, 200, 200);
+        break;
+      default:
+        break;
+    }
 
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "kiss.png",
