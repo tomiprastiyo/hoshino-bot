@@ -72,6 +72,9 @@ export class BotService {
       case "whenya":
         await this.handleWhenYaCommand(message);
         break;
+      case "gmw":
+        await this.handleNopeCommand(message);
+        break;
       case "help":
         await this.handleHelpCommand(message);
         break;
@@ -458,6 +461,28 @@ export class BotService {
       name: "when-ya.png",
     });
     message.channel.send({ files: [attachment] });
+  }
+
+  private async handleNopeCommand(message: Message) {
+    const text = "Gak Mau";
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/nope.gif"),
+      (ctx, width, height, totalFrames, currentFrame) => {
+        const word = `${text}`;
+        ctx.font = "60px bold sans-serif";
+        ctx.fillStyle = "#000";
+        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 275);
+      },
+      {
+        fps: 60,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "nope.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
   }
 
   private async handleHelpCommand(message: Message) {
