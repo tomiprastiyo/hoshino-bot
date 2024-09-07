@@ -66,6 +66,12 @@ export class BotService {
       case "lord":
         await this.handleLordCommand(message);
         break;
+      case "diajak":
+        await this.handleInvitedCommand(message);
+        break;
+      case "whenya":
+        await this.handleWhenYaCommand(message);
+        break;
       case "help":
         await this.handleHelpCommand(message);
         break;
@@ -374,6 +380,82 @@ export class BotService {
 
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "lord.png",
+    });
+    message.channel.send({ files: [attachment] });
+  }
+
+  private async handleInvitedCommand(message: Message) {
+    const text = "Sini Diajak";
+
+    // Load and draw on canvas
+    const canvas = createCanvas(700, 900);
+    const context = canvas.getContext("2d");
+    const background = await loadImage(
+      path.join(__dirname, "../../assets/images/invited.jpg")
+    );
+
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    context.font = "80px bold sans-serif";
+    context.fillStyle = "#000";
+    context.strokeStyle = "#fff";
+    context.lineWidth = 8;
+    const name = `${text}`;
+
+    // Draw border (stroke) for the text
+    context.strokeText(
+      name,
+      canvas.width / 2 - context.measureText(name).width / 2,
+      800
+    );
+
+    // Draw filled text on top of the border
+    context.fillText(
+      name,
+      canvas.width / 2 - context.measureText(name).width / 2,
+      800
+    );
+
+    // Send the image
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+      name: "invited.png",
+    });
+    message.channel.send({ files: [attachment] });
+  }
+
+  private async handleWhenYaCommand(message: Message) {
+    const text = "When Ya Diajak";
+
+    // Load and draw on canvas
+    const canvas = createCanvas(1366, 768);
+    const context = canvas.getContext("2d");
+    const background = await loadImage(
+      path.join(__dirname, "../../assets/images/when-ya.jpg")
+    );
+
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    context.font = "80px bold sans-serif";
+    context.fillStyle = "#000";
+    context.strokeStyle = "#fff";
+    context.lineWidth = 8;
+    const name = `${text}`;
+
+    // Draw border (stroke) for the text
+    context.strokeText(
+      name,
+      canvas.width / 2 - context.measureText(name).width / 2,
+      700
+    );
+
+    // Draw filled text on top of the border
+    context.fillText(
+      name,
+      canvas.width / 2 - context.measureText(name).width / 2,
+      700
+    );
+
+    // Send the image
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+      name: "when-ya.png",
     });
     message.channel.send({ files: [attachment] });
   }
