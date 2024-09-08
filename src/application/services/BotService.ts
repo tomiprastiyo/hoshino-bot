@@ -561,6 +561,8 @@ export class BotService {
   }
 
   private async handleHelpCommand(message: Message) {
+    const prefix = process.env.PREFIX || "!";
+
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle("Hoshino Bot Commands")
@@ -568,18 +570,79 @@ export class BotService {
       .addFields(
         {
           name: "Avatar",
-          value: "Displays the avatar of a user",
+          value: `Displays the avatar of a user. Usage: ${prefix}avatar [@user | username | no mention]`,
           inline: true,
         },
-        { name: "Slam", value: "Performs a slam action", inline: true },
-        { name: "Hug", value: "Sends a hug", inline: true },
-        { name: "Punch", value: "Powers a punch", inline: true },
-        { name: "Kiss", value: "Sends a kiss", inline: true },
-        { name: "Come", value: "Calls someone to come", inline: true },
-        { name: "Slap", value: "Performs a slap action", inline: true },
-        { name: "Ditinggal", value: "Mentions someone who left", inline: true },
-        { name: "Lord", value: "Displays the lord command", inline: true },
-        { name: "Help", value: "Displays this help message", inline: true }
+        {
+          name: "Slam",
+          value: `Performs a slam action on a mentioned user. Usage: ${prefix}slam @user`,
+          inline: true,
+        },
+        {
+          name: "Hug",
+          value: `Sends a hug to a mentioned user. Usage: ${prefix}hug @user`,
+          inline: true,
+        },
+        {
+          name: "Punch",
+          value: `Powers a punch at a mentioned user. Usage: ${prefix}punch @user`,
+          inline: true,
+        },
+        {
+          name: "Kiss",
+          value: `Sends a kiss to a mentioned user. Usage: ${prefix}kiss @user`,
+          inline: true,
+        },
+        {
+          name: "Come",
+          value: `Calls someone to come with a message. Usage: ${prefix}come [message @user | @user]`,
+          inline: true,
+        },
+        {
+          name: "Slap",
+          value: `Performs a slap action on a mentioned user. Usage: ${prefix}slap @user`,
+          inline: true,
+        },
+        {
+          name: "Ditinggal",
+          value: `Mentions someone who left. Usage: ${prefix}ditinggal`,
+          inline: true,
+        },
+        {
+          name: "Lord",
+          value: `Performs a lord action on a mentioned user. Usage: ${prefix}lord @user`,
+          inline: true,
+        },
+        {
+          name: "Diajak",
+          value: `Mentions someone who joined. Usage: ${prefix}diajak`,
+          inline: true,
+        },
+        {
+          name: "WhenYa",
+          value: `Provides information on 'when ya' scenarios. Usage: ${prefix}whenya`,
+          inline: true,
+        },
+        {
+          name: "GMW",
+          value: `Handles 'gmw' scenarios. Usage: ${prefix}gmw`,
+          inline: true,
+        },
+        {
+          name: "Lick",
+          value: `Performs a lick action. Usage: ${prefix}lick @user`,
+          inline: true,
+        },
+        {
+          name: "Hitam",
+          value: `Performs a hitam action. Usage: ${prefix}hitam [message]`,
+          inline: true,
+        },
+        {
+          name: "Help",
+          value: `Displays this help message. Usage: ${prefix}help`,
+          inline: true,
+        }
       )
       .setFooter({ text: "Use !command for more details on each command" });
 
