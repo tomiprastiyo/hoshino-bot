@@ -75,6 +75,9 @@ export class BotService {
       case "gmw":
         await this.handleNopeCommand(message);
         break;
+      case "lick":
+        await this.handleLickCommand(message);
+        break;
       case "help":
         await this.handleHelpCommand(message);
         break;
@@ -494,6 +497,36 @@ export class BotService {
     ).then((buffer) => {
       const attachment = new AttachmentBuilder(buffer, {
         name: "nope.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
+  }
+
+  private async handleLickCommand(message: Message) {
+    const user = message.mentions.users.first();
+    if (!user) return;
+
+    const avatar = await loadImage(
+      message.guild?.members.cache
+        .get(user.id)
+        ?.displayAvatarURL({ extension: "png" }) ||
+        user.displayAvatarURL({ extension: "png" }) ||
+        ""
+    );
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/lick.gif"),
+      (ctx, width, height, totalFrames, currentFrame) => {
+        ctx.drawImage(avatar as any, 125, 250, 200, 200);
+        ctx.font = "60px bold sans-serif";
+        ctx.fillStyle = "#fff";
+      },
+      {
+        fps: 60,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "lick.gif",
       });
       message.channel.send({ files: [attachment] });
     });
