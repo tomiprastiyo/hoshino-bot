@@ -78,6 +78,9 @@ export class BotService {
       case "lick":
         await this.handleLickCommand(message);
         break;
+      case "hitam":
+        await this.handleBlackCommand(message);
+        break;
       case "help":
         await this.handleHelpCommand(message);
         break;
@@ -527,6 +530,31 @@ export class BotService {
     ).then((buffer) => {
       const attachment = new AttachmentBuilder(buffer, {
         name: "lick.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
+  }
+
+  private async handleBlackCommand(message: Message) {
+    const args = message.content.split(" ");
+    let text = args[1];
+
+    if (!text) return;
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/black.gif"),
+      (ctx, width, height, totalFrames, currentFrame) => {
+        const word = `${text} Hitam`;
+        ctx.font = "60px bold sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 250);
+      },
+      {
+        fps: 20,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "black.gif",
       });
       message.channel.send({ files: [attachment] });
     });
