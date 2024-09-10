@@ -364,7 +364,7 @@ export class BotService {
 
     canvasGif(
       path.join(__dirname, "../../assets/images/abandoned.gif"),
-      (ctx, width, height, totalFrames, currentFrame) => {
+      (ctx, width) => {
         const word = `${text}`;
         ctx.font = "60px bold sans-serif";
         ctx.fillStyle = "#fff";
@@ -486,23 +486,59 @@ export class BotService {
   private async handleNopeCommand(message: Message) {
     const text = "Gak Mau";
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/nope.gif"),
-      (ctx, width, height, totalFrames, currentFrame) => {
-        const word = `${text}`;
-        ctx.font = "60px bold sans-serif";
-        ctx.fillStyle = "#000";
-        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 275);
-      },
-      {
-        fps: 60,
-      }
-    ).then((buffer) => {
-      const attachment = new AttachmentBuilder(buffer, {
-        name: "nope.gif",
-      });
-      message.channel.send({ files: [attachment] });
-    });
+    // Randomize the background
+    const randomImage = Math.floor(Math.random() * 2) + 1;
+
+    switch (randomImage) {
+      case 1:
+        canvasGif(
+          path.join(__dirname, `../../assets/images/nope/${randomImage}.gif`),
+          (ctx, width) => {
+            const word = `${text}`;
+            ctx.font = "60px bold sans-serif";
+            ctx.fillStyle = "#000";
+            ctx.fillText(
+              word,
+              width / 2 - ctx.measureText(word).width / 2,
+              275
+            );
+          },
+          {
+            fps: 20,
+          }
+        ).then((buffer) => {
+          const attachment = new AttachmentBuilder(buffer, {
+            name: "nope.gif",
+          });
+          message.channel.send({ files: [attachment] });
+        });
+        break;
+      case 2:
+        canvasGif(
+          path.join(__dirname, `../../assets/images/nope/${randomImage}.gif`),
+          (ctx, width) => {
+            const word = `${text}`;
+            ctx.font = "60px bold sans-serif";
+            ctx.fillStyle = "#000";
+            ctx.fillText(
+              word,
+              width / 2 - ctx.measureText(word).width / 2,
+              350
+            );
+          },
+          {
+            fps: 20,
+          }
+        ).then((buffer) => {
+          const attachment = new AttachmentBuilder(buffer, {
+            name: "nope.gif",
+          });
+          message.channel.send({ files: [attachment] });
+        });
+        break;
+      default:
+        break;
+    }
   }
 
   private async handleLickCommand(message: Message) {
@@ -519,7 +555,7 @@ export class BotService {
 
     canvasGif(
       path.join(__dirname, "../../assets/images/lick.gif"),
-      (ctx, width, height, totalFrames, currentFrame) => {
+      (ctx) => {
         ctx.drawImage(avatar as any, 125, 250, 200, 200);
         ctx.font = "60px bold sans-serif";
         ctx.fillStyle = "#fff";
@@ -543,7 +579,7 @@ export class BotService {
 
     canvasGif(
       path.join(__dirname, "../../assets/images/black.gif"),
-      (ctx, width, height, totalFrames, currentFrame) => {
+      (ctx, width) => {
         const word = `${text} Hitam`;
         ctx.font = "60px bold sans-serif";
         ctx.fillStyle = "#fff";
