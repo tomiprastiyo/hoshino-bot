@@ -28,7 +28,28 @@ export class BotService {
     );
   }
 
+  private commandHandlers: {
+    [key: string]: (message: Message) => Promise<void>;
+  } = {
+    avatar: this.handleAvatarCommand.bind(this),
+    slam: this.handleSlamCommand.bind(this),
+    hug: this.handleHugCommand.bind(this),
+    punch: this.handlePunchCommand.bind(this),
+    kiss: this.handleKissCommand.bind(this),
+    come: this.handleComeCommand.bind(this),
+    slap: this.handleSlapCommand.bind(this),
+    ditinggal: this.handleAbandonedCommand.bind(this),
+    lord: this.handleLordCommand.bind(this),
+    diajak: this.handleInvitedCommand.bind(this),
+    whenya: this.handleWhenYaCommand.bind(this),
+    gmw: this.handleNopeCommand.bind(this),
+    lick: this.handleLickCommand.bind(this),
+    hitam: this.handleBlackCommand.bind(this),
+    help: this.handleHelpCommand.bind(this),
+  };
+
   private async handleMessage(message: Message) {
+    if (message.author.bot) return;
     if (message.author.bot) return;
 
     const prefix = process.env.PREFIX || "!";
@@ -38,54 +59,11 @@ export class BotService {
     const args = commandBody.split(" ");
     const command = args.shift()?.toLowerCase();
 
-    switch (command) {
-      case "avatar":
-        await this.handleAvatarCommand(message);
-        break;
-      case "slam":
-        await this.handleSlamCommand(message);
-        break;
-      case "hug":
-        await this.handleHugCommand(message);
-        break;
-      case "punch":
-        await this.handlePunchCommand(message);
-        break;
-      case "kiss":
-        await this.handleKissCommand(message);
-        break;
-      case "come":
-        await this.handleComeCommand(message);
-        break;
-      case "slap":
-        await this.handleSlapCommand(message);
-        break;
-      case "ditinggal":
-        await this.handleAbandonedCommand(message);
-        break;
-      case "lord":
-        await this.handleLordCommand(message);
-        break;
-      case "diajak":
-        await this.handleInvitedCommand(message);
-        break;
-      case "whenya":
-        await this.handleWhenYaCommand(message);
-        break;
-      case "gmw":
-        await this.handleNopeCommand(message);
-        break;
-      case "lick":
-        await this.handleLickCommand(message);
-        break;
-      case "hitam":
-        await this.handleBlackCommand(message);
-        break;
-      case "help":
-        await this.handleHelpCommand(message);
-        break;
-      default:
-        message.channel.send("Command not recognized.");
+    const handler = this.commandHandlers[command || ""];
+    if (handler) {
+      await handler(message);
+    } else {
+      message.channel.send("Command not recognized.");
     }
   }
 
@@ -147,15 +125,10 @@ export class BotService {
 
     const canvas = createCanvas(1200, 1300);
     const context = canvas.getContext("2d");
-    const background = await loadImage(
-      path.join(__dirname, "../../assets/images/hug.jpg")
-    );
 
-    context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    context.beginPath();
-    context.arc(700, 680, 175, 0, Math.PI * 2, true);
-    context.closePath();
-    context.clip();
+    // Randomize the background
+    const randomImage = Math.floor(Math.random() * 2) + 1;
+
     const avatar = await loadImage(
       message.guild?.members.cache
         .get(user.id)
@@ -163,13 +136,47 @@ export class BotService {
         user.displayAvatarURL({ extension: "png" }) ||
         ""
     );
-    context.rotate((-40 * Math.PI) / 180);
-    context.drawImage(avatar, -75, 780, 400, 400);
 
-    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-      name: "hug.png",
-    });
-    message.channel.send({ files: [attachment] });
+    switch (randomImage) {
+      case 1:
+        const background = await loadImage(
+          path.join(__dirname, `../../assets/images/hug/${randomImage}.jpg`)
+        );
+
+        context.drawImage(background, 0, 0, canvas.width, canvas.height);
+        context.beginPath();
+        context.arc(700, 680, 175, 0, Math.PI * 2, true);
+        context.closePath();
+        context.clip();
+        context.rotate((-40 * Math.PI) / 180);
+        context.drawImage(avatar, -75, 780, 400, 400);
+
+        const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+          name: "hug.png",
+        });
+        message.channel.send({ files: [attachment] });
+        break;
+      case 2:
+        canvasGif(
+          path.join(__dirname, `../../assets/images/hug/${randomImage}.gif`),
+          (ctx) => {
+            ctx.beginPath();
+            ctx.rotate((-40 * Math.PI) / 180);
+            ctx.drawImage(avatar as any, -20, 150, 65, 65);
+          },
+          {
+            fps: 20,
+          }
+        ).then((buffer) => {
+          const attachment = new AttachmentBuilder(buffer, {
+            name: "nope.gif",
+          });
+          message.channel.send({ files: [attachment] });
+        });
+        break;
+      default:
+        break;
+    }
   }
 
   private async handlePunchCommand(message: Message) {
@@ -557,8 +564,6 @@ export class BotService {
       path.join(__dirname, "../../assets/images/lick.gif"),
       (ctx) => {
         ctx.drawImage(avatar as any, 125, 250, 200, 200);
-        ctx.font = "60px bold sans-serif";
-        ctx.fillStyle = "#fff";
       },
       {
         fps: 60,
