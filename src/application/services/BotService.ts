@@ -45,6 +45,7 @@ export class BotService {
     gmw: this.handleNopeCommand.bind(this),
     lick: this.handleLickCommand.bind(this),
     hitam: this.handleBlackCommand.bind(this),
+    pagi: this.handleMorningCommand.bind(this),
     help: this.handleHelpCommand.bind(this),
   };
 
@@ -378,7 +379,7 @@ export class BotService {
         ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 350);
       },
       {
-        fps: 60,
+        fps: 20,
       }
     ).then((buffer) => {
       const attachment = new AttachmentBuilder(buffer, {
@@ -601,6 +602,28 @@ export class BotService {
     });
   }
 
+  private async handleMorningCommand(message: Message) {
+    const text = "Selamat Pagi";
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/morning.gif"),
+      (ctx, width) => {
+        const word = `${text}`;
+        ctx.font = "40px bold sans-serif";
+        ctx.fillStyle = "#000";
+        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 210);
+      },
+      {
+        fps: 10,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "morning.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
+  }
+
   private async handleHelpCommand(message: Message) {
     const prefix = process.env.PREFIX || "!";
 
@@ -677,6 +700,11 @@ export class BotService {
         {
           name: "🖤 Hitam",
           value: `Performs a hitam action.\nUsage: \`${prefix}hitam [message]\``,
+          inline: true,
+        },
+        {
+          name: "🌞 Pagi",
+          value: `Performs a pagi action.\nUsage: \`${prefix}pagi\``,
           inline: true,
         },
         {
