@@ -46,6 +46,7 @@ export class BotService {
     lick: this.handleLickCommand.bind(this),
     hitam: this.handleBlackCommand.bind(this),
     pagi: this.handleMorningCommand.bind(this),
+    makan: this.handleEatCommand.bind(this),
     help: this.handleHelpCommand.bind(this),
   };
 
@@ -624,6 +625,28 @@ export class BotService {
     });
   }
 
+  private async handleEatCommand(message: Message) {
+    const text = "Selamat Makan";
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/eat.gif"),
+      (ctx, width) => {
+        const word = `${text}`;
+        ctx.font = "40px bold sans-serif";
+        ctx.fillStyle = "#000";
+        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 275);
+      },
+      {
+        fps: 10,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "eat.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
+  }
+
   private async handleHelpCommand(message: Message) {
     const prefix = process.env.PREFIX || "!";
 
@@ -705,6 +728,11 @@ export class BotService {
         {
           name: "🌞 Pagi",
           value: `Performs a pagi action.\nUsage: \`${prefix}pagi\``,
+          inline: true,
+        },
+        {
+          name: "🍱 Makan",
+          value: `Performs a makan action.\nUsage: \`${prefix}makan\``,
           inline: true,
         },
         {
