@@ -101,25 +101,28 @@ export class BotService {
 
     const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
-    const background = await loadImage(
-      path.join(__dirname, "../../assets/images/slam.jpg")
-    );
 
+    // Load background image and user avatar
+    const [background, avatar] = await Promise.all([
+      loadImage(path.join(__dirname, "../../assets/images/slam.jpg")),
+      loadImage(
+        message.guild?.members.cache
+          .get(user.id)
+          ?.displayAvatarURL({ extension: "png" }) ||
+          user.displayAvatarURL({ extension: "png" })
+      ),
+    ]);
+
+    // Draw background and avatar on the canvas
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    const avatar = await loadImage(
-      message.guild?.members.cache
-        .get(user.id)
-        ?.displayAvatarURL({ extension: "png" }) ||
-        user.displayAvatarURL({ extension: "png" }) ||
-        ""
-    );
     context.rotate((-20 * Math.PI) / 180);
     context.drawImage(avatar, 550, 350, 200, 200);
 
+    // Create and send the attachment
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "slam.png",
     });
-    message.channel.send({ files: [attachment] });
+    await message.channel.send({ files: [attachment] });
   }
 
   private async handleHugCommand(message: Message) {
@@ -132,20 +135,22 @@ export class BotService {
     // Randomize the background
     const randomImage = Math.floor(Math.random() * 2) + 1;
 
+    // Load user avatar
     const avatar = await loadImage(
       message.guild?.members.cache
         .get(user.id)
         ?.displayAvatarURL({ extension: "png" }) ||
-        user.displayAvatarURL({ extension: "png" }) ||
-        ""
+        user.displayAvatarURL({ extension: "png" })
     );
 
     switch (randomImage) {
       case 1:
+        // Load the background for case 1
         const background = await loadImage(
           path.join(__dirname, `../../assets/images/hug/${randomImage}.jpg`)
         );
 
+        // Draw background and avatar on the canvas
         context.drawImage(background, 0, 0, canvas.width, canvas.height);
         context.beginPath();
         context.arc(700, 680, 175, 0, Math.PI * 2, true);
@@ -154,22 +159,22 @@ export class BotService {
         context.rotate((-40 * Math.PI) / 180);
         context.drawImage(avatar, -75, 780, 400, 400);
 
+        // Create and send the attachment
         const attachment = new AttachmentBuilder(canvas.toBuffer(), {
           name: "hug.png",
         });
-        message.channel.send({ files: [attachment] });
+        await message.channel.send({ files: [attachment] });
         break;
       case 2:
-        canvasGif(
+        // Handle GIF case for randomImage 2
+        await canvasGif(
           path.join(__dirname, `../../assets/images/hug/${randomImage}.gif`),
           (ctx) => {
             ctx.beginPath();
             ctx.rotate((-40 * Math.PI) / 180);
             ctx.drawImage(avatar as any, -20, 150, 65, 65);
           },
-          {
-            fps: 20,
-          }
+          { fps: 20 }
         ).then((buffer) => {
           const attachment = new AttachmentBuilder(buffer, {
             name: "nope.gif",
@@ -183,43 +188,40 @@ export class BotService {
   }
 
   private async handlePunchCommand(message: Message) {
-    const args = message.content.split(" ");
+    const args = message.content.split(/\s+/);
     const target = args[1];
 
     // Determine the user to punch
-    let user;
-    if (message.mentions.users.size > 0) {
-      user = message.mentions.users.first();
-    } else if (this.client.users.cache.find((user) => user.tag === target)) {
-      user = this.client.users.cache.find((user) => user.tag === target);
-    }
+    let user =
+      message.mentions.users.first() ||
+      this.client.users.cache.find((user) => user.tag === target);
 
     // Determine the text to use
-    const text = user ? user.displayName : target;
+    const text = user?.displayName || target;
     if (!text) return;
 
     // Load and draw on canvas
     const canvas = createCanvas(500, 500);
     const context = canvas.getContext("2d");
+
+    // Load background image
     const background = await loadImage(
       path.join(__dirname, "../../assets/images/punch.jpg")
     );
-
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+    // Draw text on canvas
     context.font = "60px bold sans-serif";
     context.fillStyle = "#000";
     const name = `Pukul ${text}`;
-    context.fillText(
-      name,
-      canvas.width / 2 - context.measureText(name).width / 2,
-      450
-    );
+    const textWidth = context.measureText(name).width;
+    context.fillText(name, (canvas.width - textWidth) / 2, 450);
 
     // Send the image
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "punch.png",
     });
-    message.channel.send({ files: [attachment] });
+    await message.channel.send({ files: [attachment] });
   }
 
   private async handleKissCommand(message: Message) {
