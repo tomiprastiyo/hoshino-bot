@@ -46,6 +46,7 @@ export class BotService {
     lick: this.handleLickCommand.bind(this),
     hitam: this.handleBlackCommand.bind(this),
     pagi: this.handleMorningCommand.bind(this),
+    siang: this.handleAfternoonCommand.bind(this),
     makan: this.handleEatCommand.bind(this),
     help: this.handleHelpCommand.bind(this),
   };
@@ -625,6 +626,28 @@ export class BotService {
     });
   }
 
+  private async handleAfternoonCommand(message: Message) {
+    const text = "Selamat Siang";
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/afternoon.gif"),
+      (ctx, width) => {
+        const word = `${text}`;
+        ctx.font = "40px bold sans-serif";
+        ctx.fillStyle = "#000";
+        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 270);
+      },
+      {
+        fps: 10,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "afternoon.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
+  }
+
   private async handleEatCommand(message: Message) {
     const text = "Selamat Makan";
 
@@ -728,6 +751,11 @@ export class BotService {
         {
           name: "🌞 Pagi",
           value: `Performs a pagi action.\nUsage: \`${prefix}pagi\``,
+          inline: true,
+        },
+        {
+          name: "☀️ Siang",
+          value: `Performs a siang action.\nUsage: \`${prefix}siang\``,
           inline: true,
         },
         {
