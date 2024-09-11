@@ -389,217 +389,244 @@ export class BotService {
 
   private async handleAbandonedCommand(message: Message) {
     const text = "Ditinggal Mabar";
+    const gifPath = path.join(__dirname, "../../assets/images/abandoned.gif");
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/abandoned.gif"),
-      (ctx, width) => {
-        const word = `${text}`;
-        ctx.font = "60px bold sans-serif";
+    try {
+      // Generate the GIF with text overlay
+      const buffer = await canvasGif(
+        gifPath,
+        (ctx, width) => {
+          const fontSize = 40;
+          const textX = (width - ctx.measureText(text).width) / 2;
+          const textY = 350;
 
-        // Set the fill style for the text color
-        ctx.fillStyle = "#fff";
+          ctx.font = `${fontSize}px bold sans-serif`;
+          ctx.fillStyle = "#fff";
+          ctx.strokeStyle = "#000";
+          ctx.lineWidth = 4;
 
-        // Set the stroke style for the border color
-        ctx.strokeStyle = "#000"; // White border for contrast, adjust as needed
-        ctx.lineWidth = 4; // Width of the border
+          // Draw the border (outline) first
+          ctx.strokeText(text, textX, textY);
 
-        const textX = width / 2 - ctx.measureText(word).width / 2;
-        const textY = 350;
+          // Draw the filled text on top
+          ctx.fillText(text, textX, textY);
+        },
+        { fps: 20 }
+      );
 
-        // Draw the border (outline) first
-        ctx.strokeText(word, textX, textY);
-
-        // Draw the filled text on top
-        ctx.fillText(word, textX, textY);
-      },
-      {
-        fps: 20,
-      }
-    ).then((buffer) => {
+      // Send the GIF
       const attachment = new AttachmentBuilder(buffer, {
         name: "abandoned.gif",
       });
-      message.channel.send({ files: [attachment] });
-    });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error handling abandoned command:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleLordCommand(message: Message) {
-    const user = message.mentions.users.first();
-    if (!user) return;
+    const canvasWidth = 768;
+    const canvasHeight = 1366;
+    const avatarSize = 200;
+    const avatarPositionX = 325;
+    const avatarPositionY = 400;
+    const backgroundPath = path.join(__dirname, "../../assets/images/lord.jpg");
 
-    const canvas = createCanvas(768, 1366);
-    const context = canvas.getContext("2d");
-    const background = await loadImage(
-      path.join(__dirname, "../../assets/images/lord.jpg")
-    );
+    try {
+      // Fetch the mentioned user
+      const user = message.mentions.users.first();
+      if (!user) return;
 
-    context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    const avatar = await loadImage(
-      message.guild?.members.cache
-        .get(user.id)
-        ?.displayAvatarURL({ extension: "png" }) ||
+      // Initialize canvas and context
+      const canvas = createCanvas(canvasWidth, canvasHeight);
+      const context = canvas.getContext("2d");
+
+      // Load the background image
+      const background = await loadImage(backgroundPath);
+      context.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+      // Load the user's avatar
+      const avatarUrl =
+        message.guild?.members.cache
+          .get(user.id)
+          ?.displayAvatarURL({ extension: "png" }) ||
         user.displayAvatarURL({ extension: "png" }) ||
-        ""
-    );
-    context.drawImage(avatar, 325, 400, 200, 200);
+        "";
 
-    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-      name: "lord.png",
-    });
-    message.channel.send({ files: [attachment] });
+      const avatar = await loadImage(avatarUrl);
+
+      // Draw the avatar on the canvas
+      context.drawImage(
+        avatar,
+        avatarPositionX,
+        avatarPositionY,
+        avatarSize,
+        avatarSize
+      );
+
+      // Create and send the image attachment
+      const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+        name: "lord.png",
+      });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleLordCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleInvitedCommand(message: Message) {
+    const canvasWidth = 700;
+    const canvasHeight = 900;
     const text = "Sini Diajak";
-
-    // Load and draw on canvas
-    const canvas = createCanvas(700, 900);
-    const context = canvas.getContext("2d");
-    const background = await loadImage(
-      path.join(__dirname, "../../assets/images/invited.jpg")
+    const textPositionY = 800;
+    const backgroundPath = path.join(
+      __dirname,
+      "../../assets/images/invited.jpg"
     );
 
-    context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    context.font = "80px bold sans-serif";
-    context.fillStyle = "#000";
-    context.strokeStyle = "#fff";
-    context.lineWidth = 8;
-    const name = `${text}`;
+    try {
+      // Initialize canvas and context
+      const canvas = createCanvas(canvasWidth, canvasHeight);
+      const context = canvas.getContext("2d");
 
-    // Draw border (stroke) for the text
-    context.strokeText(
-      name,
-      canvas.width / 2 - context.measureText(name).width / 2,
-      800
-    );
+      // Load the background image
+      const background = await loadImage(backgroundPath);
+      context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // Draw filled text on top of the border
-    context.fillText(
-      name,
-      canvas.width / 2 - context.measureText(name).width / 2,
-      800
-    );
+      // Set text styles
+      context.font = "80px bold sans-serif";
+      context.fillStyle = "#000";
+      context.strokeStyle = "#fff";
+      context.lineWidth = 8;
 
-    // Send the image
-    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-      name: "invited.png",
-    });
-    message.channel.send({ files: [attachment] });
+      // Calculate text position
+      const textPositionX =
+        canvas.width / 2 - context.measureText(text).width / 2;
+
+      // Draw text border (stroke) and filled text
+      context.strokeText(text, textPositionX, textPositionY);
+      context.fillText(text, textPositionX, textPositionY);
+
+      // Create and send the image attachment
+      const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+        name: "invited.png",
+      });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleInvitedCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleWhenYaCommand(message: Message) {
     const text = "When Ya Diajak";
+    const canvasWidth = 1366;
+    const canvasHeight = 768;
+    const fontSize = 80;
+    const textPositionY = 700;
 
-    // Load and draw on canvas
-    const canvas = createCanvas(1366, 768);
-    const context = canvas.getContext("2d");
-    const background = await loadImage(
-      path.join(__dirname, "../../assets/images/when-ya.jpg")
-    );
+    try {
+      // Load the background image
+      const background = await loadImage(
+        path.join(__dirname, "../../assets/images/when-ya.jpg")
+      );
 
-    context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    context.font = "80px bold sans-serif";
-    context.fillStyle = "#000";
-    context.strokeStyle = "#fff";
-    context.lineWidth = 8;
-    const name = `${text}`;
+      // Initialize canvas and context
+      const canvas = createCanvas(canvasWidth, canvasHeight);
+      const context = canvas.getContext("2d");
 
-    // Draw border (stroke) for the text
-    context.strokeText(
-      name,
-      canvas.width / 2 - context.measureText(name).width / 2,
-      700
-    );
+      // Draw the background
+      context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // Draw filled text on top of the border
-    context.fillText(
-      name,
-      canvas.width / 2 - context.measureText(name).width / 2,
-      700
-    );
+      // Set up text styling
+      context.font = `${fontSize}px bold sans-serif`;
+      context.fillStyle = "#000";
+      context.strokeStyle = "#fff";
+      context.lineWidth = 8;
 
-    // Send the image
-    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
-      name: "when-ya.png",
-    });
-    message.channel.send({ files: [attachment] });
+      // Calculate text position
+      const textPositionX =
+        (canvas.width - context.measureText(text).width) / 2;
+
+      // Draw the text with stroke and fill
+      context.strokeText(text, textPositionX, textPositionY);
+      context.fillText(text, textPositionX, textPositionY);
+
+      // Create and send the image attachment
+      const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+        name: "when-ya.png",
+      });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleWhenYaCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleNopeCommand(message: Message) {
     const text = "Gak Mau";
+    const fontSize = "60px bold sans-serif";
+    const textFillColor = "#000";
+    const textStrokeColor = "#fff";
+    const lineWidth = 4;
+    const fps = 20;
 
-    // Randomize the background
+    // Randomize the background image
     const randomImage = Math.floor(Math.random() * 2) + 1;
+    const imagePath = path.join(
+      __dirname,
+      `../../assets/images/nope/${randomImage}.gif`
+    );
 
-    switch (randomImage) {
-      case 1:
-        canvasGif(
-          path.join(__dirname, `../../assets/images/nope/${randomImage}.gif`),
-          (ctx, width) => {
-            const word = `${text}`;
-            ctx.font = "60px bold sans-serif";
+    try {
+      // Generate the GIF with canvas
+      const buffer = await canvasGif(
+        imagePath,
+        (ctx, width) => {
+          ctx.font = fontSize;
+          ctx.fillStyle = textFillColor;
+          ctx.strokeStyle = textStrokeColor;
+          ctx.lineWidth = lineWidth;
 
-            // Set the fill style for the text color
-            ctx.fillStyle = "#000";
+          const textX = width / 2 - ctx.measureText(text).width / 2;
+          let textY = 0; // Adjust the Y position based on the random image
 
-            // Set the stroke style for the border color
-            ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
-            ctx.lineWidth = 4; // Width of the border
-
-            const textX = width / 2 - ctx.measureText(word).width / 2;
-            const textY = 270;
-
-            // Draw the border (outline) first
-            ctx.strokeText(word, textX, textY);
-
-            // Draw the filled text on top
-            ctx.fillText(word, textX, textY);
-          },
-          {
-            fps: 20,
+          switch (randomImage) {
+            case 1:
+              textY = 270;
+              break;
+            case 2:
+              textY = 350;
+              break;
+            default:
+              break;
           }
-        ).then((buffer) => {
-          const attachment = new AttachmentBuilder(buffer, {
-            name: "nope.gif",
-          });
-          message.channel.send({ files: [attachment] });
-        });
-        break;
-      case 2:
-        canvasGif(
-          path.join(__dirname, `../../assets/images/nope/${randomImage}.gif`),
-          (ctx, width) => {
-            const word = `${text}`;
-            ctx.font = "60px bold sans-serif";
 
-            // Set the fill style for the text color
-            ctx.fillStyle = "#000";
+          // Draw the border (stroke) and filled text
+          ctx.strokeText(text, textX, textY);
+          ctx.fillText(text, textX, textY);
+        },
+        { fps }
+      );
 
-            // Set the stroke style for the border color
-            ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
-            ctx.lineWidth = 4; // Width of the border
-
-            const textX = width / 2 - ctx.measureText(word).width / 2;
-            const textY = 350;
-
-            // Draw the border (outline) first
-            ctx.strokeText(word, textX, textY);
-
-            // Draw the filled text on top
-            ctx.fillText(word, textX, textY);
-          },
-          {
-            fps: 20,
-          }
-        ).then((buffer) => {
-          const attachment = new AttachmentBuilder(buffer, {
-            name: "nope.gif",
-          });
-          message.channel.send({ files: [attachment] });
-        });
-        break;
-      default:
-        break;
+      // Create and send the attachment
+      const attachment = new AttachmentBuilder(buffer, { name: "nope.gif" });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleNopeCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
     }
   }
 
@@ -607,28 +634,34 @@ export class BotService {
     const user = message.mentions.users.first();
     if (!user) return;
 
-    const avatar = await loadImage(
-      message.guild?.members.cache
-        .get(user.id)
-        ?.displayAvatarURL({ extension: "png" }) ||
+    try {
+      const userAvatarURL =
+        message.guild?.members.cache
+          .get(user.id)
+          ?.displayAvatarURL({ extension: "png" }) ||
         user.displayAvatarURL({ extension: "png" }) ||
-        ""
-    );
+        "";
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/lick.gif"),
-      (ctx) => {
-        ctx.drawImage(avatar as any, 125, 250, 200, 200);
-      },
-      {
-        fps: 60,
-      }
-    ).then((buffer) => {
-      const attachment = new AttachmentBuilder(buffer, {
-        name: "lick.gif",
-      });
-      message.channel.send({ files: [attachment] });
-    });
+      const avatar = await loadImage(userAvatarURL);
+
+      // Generate the GIF with canvas
+      const buffer = await canvasGif(
+        path.join(__dirname, "../../assets/images/lick.gif"),
+        (ctx) => {
+          ctx.drawImage(avatar as any, 125, 250, 200, 200);
+        },
+        { fps: 60 }
+      );
+
+      // Create and send the attachment
+      const attachment = new AttachmentBuilder(buffer, { name: "lick.gif" });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleLickCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleBlackCommand(message: Message) {
@@ -636,300 +669,283 @@ export class BotService {
     const target = args[1];
 
     // Determine the user to punch
-    let user;
-    if (message.mentions.users.size > 0) {
-      user = message.mentions.users.first();
-    } else if (this.client.users.cache.find((user) => user.tag === target)) {
-      user = this.client.users.cache.find((user) => user.tag === target);
-    }
+    const user =
+      message.mentions.users.first() ||
+      this.client.users.cache.find((u) => u.tag === target);
 
     // Determine the text to use
-    const text = user ? user.displayName : target;
+    const text = user ? user.username : target;
     if (!text) return;
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/black.gif"),
-      (ctx, width) => {
-        const word = `${text} Hitam`;
-        ctx.font = "40px bold sans-serif";
+    try {
+      // Generate the GIF with canvas
+      const buffer = await canvasGif(
+        path.join(__dirname, "../../assets/images/black.gif"),
+        (ctx, width) => {
+          const word = `${text} Hitam`;
+          ctx.font = "40px bold sans-serif";
+          ctx.fillStyle = "#fff"; // Text color
+          ctx.strokeStyle = "#000"; // Border color
+          ctx.lineWidth = 4; // Border width
 
-        // Set the fill style for the text color
-        ctx.fillStyle = "#fff";
+          const textX = (width - ctx.measureText(word).width) / 2;
+          const textY = 250;
 
-        // Set the stroke style for the border color
-        ctx.strokeStyle = "#000"; // White border for contrast, adjust as needed
-        ctx.lineWidth = 4; // Width of the border
+          // Draw the text with border
+          ctx.strokeText(word, textX, textY);
+          ctx.fillText(word, textX, textY);
+        },
+        { fps: 20 }
+      );
 
-        const textX = width / 2 - ctx.measureText(word).width / 2;
-        const textY = 250;
-
-        // Draw the border (outline) first
-        ctx.strokeText(word, textX, textY);
-
-        // Draw the filled text on top
-        ctx.fillText(word, textX, textY);
-      },
-      {
-        fps: 20,
-      }
-    ).then((buffer) => {
-      const attachment = new AttachmentBuilder(buffer, {
-        name: "black.gif",
-      });
-      message.channel.send({ files: [attachment] });
-    });
+      // Create and send the attachment
+      const attachment = new AttachmentBuilder(buffer, { name: "black.gif" });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleBlackCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleMorningCommand(message: Message) {
     const text = "Selamat Pagi";
+    const gifPath = path.join(__dirname, "../../assets/images/morning.gif");
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/morning.gif"),
-      (ctx, width) => {
-        const word = `${text}`;
-        ctx.font = "40px bold sans-serif";
+    try {
+      // Generate the GIF with canvas
+      const buffer = await canvasGif(
+        gifPath,
+        (ctx, width) => {
+          ctx.font = "40px bold sans-serif";
+          ctx.fillStyle = "#000"; // Text color
+          ctx.strokeStyle = "#fff"; // Border color
+          ctx.lineWidth = 4; // Border width
 
-        // Set the fill style for the text color
-        ctx.fillStyle = "#000";
+          const textX = (width - ctx.measureText(text).width) / 2;
+          const textY = 210;
 
-        // Set the stroke style for the border color
-        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
-        ctx.lineWidth = 4; // Width of the border
+          // Draw the text with border
+          ctx.strokeText(text, textX, textY);
+          ctx.fillText(text, textX, textY);
+        },
+        { fps: 10 }
+      );
 
-        const textX = width / 2 - ctx.measureText(word).width / 2;
-        const textY = 210;
-
-        // Draw the border (outline) first
-        ctx.strokeText(word, textX, textY);
-
-        // Draw the filled text on top
-        ctx.fillText(word, textX, textY);
-      },
-      {
-        fps: 10,
-      }
-    ).then((buffer) => {
-      const attachment = new AttachmentBuilder(buffer, {
-        name: "morning.gif",
-      });
-      message.channel.send({ files: [attachment] });
-    });
+      // Create and send the attachment
+      const attachment = new AttachmentBuilder(buffer, { name: "morning.gif" });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleMorningCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleAfternoonCommand(message: Message) {
     const text = "Selamat Siang";
+    const gifPath = path.join(__dirname, "../../assets/images/afternoon.gif");
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/afternoon.gif"),
-      (ctx, width) => {
-        const word = `${text}`;
-        ctx.font = "40px bold sans-serif";
+    try {
+      // Generate the GIF with canvas
+      const buffer = await canvasGif(
+        gifPath,
+        (ctx, width) => {
+          ctx.font = "40px bold sans-serif";
+          ctx.fillStyle = "#000"; // Text color
+          ctx.strokeStyle = "#fff"; // Border color
+          ctx.lineWidth = 4; // Border width
 
-        // Set the fill style for the text color
-        ctx.fillStyle = "#000";
+          const textX = (width - ctx.measureText(text).width) / 2;
+          const textY = 265;
 
-        // Set the stroke style for the border color
-        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
-        ctx.lineWidth = 4; // Width of the border
+          // Draw the text with border
+          ctx.strokeText(text, textX, textY);
+          ctx.fillText(text, textX, textY);
+        },
+        { fps: 10 }
+      );
 
-        const textX = width / 2 - ctx.measureText(word).width / 2;
-        const textY = 265;
-
-        // Draw the border (outline) first
-        ctx.strokeText(word, textX, textY);
-
-        // Draw the filled text on top
-        ctx.fillText(word, textX, textY);
-      },
-      {
-        fps: 10,
-      }
-    ).then((buffer) => {
+      // Create and send the attachment
       const attachment = new AttachmentBuilder(buffer, {
         name: "afternoon.gif",
       });
-      message.channel.send({ files: [attachment] });
-    });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleAfternoonCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleNightCommand(message: Message) {
     const text = "Selamat Malam";
+    const gifPath = path.join(__dirname, "../../assets/images/night.gif");
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/night.gif"),
-      (ctx, width) => {
-        const word = `${text}`;
-        ctx.font = "40px bold sans-serif";
+    try {
+      // Generate the GIF with canvas
+      const buffer = await canvasGif(
+        gifPath,
+        (ctx, width) => {
+          ctx.font = "40px bold sans-serif";
+          ctx.fillStyle = "#000"; // Text color
+          ctx.strokeStyle = "#fff"; // Border color
+          ctx.lineWidth = 4; // Border width
 
-        // Set the fill style for the text color
-        ctx.fillStyle = "#000";
+          const textX = (width - ctx.measureText(text).width) / 2;
+          const textY = 265;
 
-        // Set the stroke style for the border color
-        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
-        ctx.lineWidth = 4; // Width of the border
+          // Draw the text with border
+          ctx.strokeText(text, textX, textY);
+          ctx.fillText(text, textX, textY);
+        },
+        { fps: 20 }
+      );
 
-        const textX = width / 2 - ctx.measureText(word).width / 2;
-        const textY = 265;
-
-        // Draw the border (outline) first
-        ctx.strokeText(word, textX, textY);
-
-        // Draw the filled text on top
-        ctx.fillText(word, textX, textY);
-      },
-      {
-        fps: 20,
-      }
-    ).then((buffer) => {
-      const attachment = new AttachmentBuilder(buffer, {
-        name: "night.gif",
-      });
-      message.channel.send({ files: [attachment] });
-    });
+      // Create and send the attachment
+      const attachment = new AttachmentBuilder(buffer, { name: "night.gif" });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleNightCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleEatCommand(message: Message) {
     const text = "Selamat Makan";
+    const gifPath = path.join(__dirname, "../../assets/images/eat.gif");
 
-    canvasGif(
-      path.join(__dirname, "../../assets/images/eat.gif"),
-      (ctx, width) => {
-        const word = `${text}`;
-        ctx.font = "40px bold sans-serif";
+    try {
+      // Generate the GIF with canvas
+      const buffer = await canvasGif(
+        gifPath,
+        (ctx, width) => {
+          ctx.font = "40px bold sans-serif";
+          ctx.fillStyle = "#000"; // Text color
+          ctx.strokeStyle = "#fff"; // Border color
+          ctx.lineWidth = 4; // Border width
 
-        // Set the fill style for the text color
-        ctx.fillStyle = "#000";
+          const textX = (width - ctx.measureText(text).width) / 2;
+          const textY = 270;
 
-        // Set the stroke style for the border color
-        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
-        ctx.lineWidth = 4; // Width of the border
+          // Draw the text with border
+          ctx.strokeText(text, textX, textY);
+          ctx.fillText(text, textX, textY);
+        },
+        { fps: 10 }
+      );
 
-        const textX = width / 2 - ctx.measureText(word).width / 2;
-        const textY = 270;
-
-        // Draw the border (outline) first
-        ctx.strokeText(word, textX, textY);
-
-        // Draw the filled text on top
-        ctx.fillText(word, textX, textY);
-      },
-      {
-        fps: 10,
-      }
-    ).then((buffer) => {
-      const attachment = new AttachmentBuilder(buffer, {
-        name: "eat.gif",
-      });
-      message.channel.send({ files: [attachment] });
-    });
+      // Create and send the attachment
+      const attachment = new AttachmentBuilder(buffer, { name: "eat.gif" });
+      await message.channel.send({ files: [attachment] });
+    } catch (error) {
+      console.error("Error in handleEatCommand:", error);
+      await message.channel.send(
+        "An error occurred while processing the command."
+      );
+    }
   }
 
   private async handleHelpCommand(message: Message) {
     const prefix = process.env.PREFIX || "!";
+
+    const commands = [
+      {
+        name: "👤 Avatar",
+        description: `Displays the avatar of a user.\nUsage: \`${prefix}avatar [@user | username | no mention]\``,
+      },
+      {
+        name: "💥 Slam",
+        description: `Performs a slam action on a mentioned user.\nUsage: \`${prefix}slam @user\``,
+      },
+      {
+        name: "🤗 Hug",
+        description: `Sends a hug to a mentioned user.\nUsage: \`${prefix}hug @user\``,
+      },
+      {
+        name: "👊 Punch",
+        description: `Powers a punch at a mentioned user.\nUsage: \`${prefix}punch @user\``,
+      },
+      {
+        name: "💋 Kiss",
+        description: `Sends a kiss to a mentioned user.\nUsage: \`${prefix}kiss @user\``,
+      },
+      {
+        name: "📩 Come",
+        description: `Calls someone to come with a message.\nUsage: \`${prefix}come [message @user | @user]\``,
+      },
+      {
+        name: "👋 Slap",
+        description: `Performs a slap action on a mentioned user.\nUsage: \`${prefix}slap @user\``,
+      },
+      {
+        name: "🚪 Ditinggal",
+        description: `Mentions someone who left.\nUsage: \`${prefix}ditinggal\``,
+      },
+      {
+        name: "👑 Lord",
+        description: `Performs a lord action on a mentioned user.\nUsage: \`${prefix}lord @user\``,
+      },
+      {
+        name: "🎉 Diajak",
+        description: `Mentions someone who joined.\nUsage: \`${prefix}diajak\``,
+      },
+      {
+        name: "⏳ WhenYa",
+        description: `Provides information on 'when ya' scenarios.\nUsage: \`${prefix}whenya\``,
+      },
+      {
+        name: "🔄 GMW",
+        description: `Handles 'gmw' scenarios.\nUsage: \`${prefix}gmw\``,
+      },
+      {
+        name: "👅 Lick",
+        description: `Performs a lick action.\nUsage: \`${prefix}lick @user\``,
+      },
+      {
+        name: "🖤 Hitam",
+        description: `Performs a hitam action.\nUsage: \`${prefix}hitam [message | @user]\``,
+      },
+      {
+        name: "🌞 Pagi",
+        description: `Performs a pagi action.\nUsage: \`${prefix}pagi\``,
+      },
+      {
+        name: "☀️ Siang",
+        description: `Performs a siang action.\nUsage: \`${prefix}siang\``,
+      },
+      {
+        name: "🌙 Malam",
+        description: `Performs a malam action.\nUsage: \`${prefix}malam\``,
+      },
+      {
+        name: "🍱 Makan",
+        description: `Performs a makan action.\nUsage: \`${prefix}makan\``,
+      },
+      {
+        name: "❓ Help",
+        description: `Displays this help message.\nUsage: \`${prefix}help\``,
+      },
+    ];
 
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle("Hoshino Bot Commands")
       .setDescription("Here are the commands you can use with Hoshino Bot:")
       .addFields(
-        {
-          name: "👤 Avatar",
-          value: `Displays the avatar of a user.\nUsage: \`${prefix}avatar [@user | username | no mention]\``,
+        commands.map((cmd) => ({
+          name: cmd.name,
+          value: cmd.description,
           inline: true,
-        },
-        {
-          name: "💥 Slam",
-          value: `Performs a slam action on a mentioned user.\nUsage: \`${prefix}slam @user\``,
-          inline: true,
-        },
-        {
-          name: "🤗 Hug",
-          value: `Sends a hug to a mentioned user.\nUsage: \`${prefix}hug @user\``,
-          inline: true,
-        },
-        {
-          name: "👊 Punch",
-          value: `Powers a punch at a mentioned user.\nUsage: \`${prefix}punch @user\``,
-          inline: true,
-        },
-        {
-          name: "💋 Kiss",
-          value: `Sends a kiss to a mentioned user.\nUsage: \`${prefix}kiss @user\``,
-          inline: true,
-        },
-        {
-          name: "📩 Come",
-          value: `Calls someone to come with a message.\nUsage: \`${prefix}come [message @user | @user]\``,
-          inline: true,
-        },
-        {
-          name: "👋 Slap",
-          value: `Performs a slap action on a mentioned user.\nUsage: \`${prefix}slap @user\``,
-          inline: true,
-        },
-        {
-          name: "🚪 Ditinggal",
-          value: `Mentions someone who left.\nUsage: \`${prefix}ditinggal\``,
-          inline: true,
-        },
-        {
-          name: "👑 Lord",
-          value: `Performs a lord action on a mentioned user.\nUsage: \`${prefix}lord @user\``,
-          inline: true,
-        },
-        {
-          name: "🎉 Diajak",
-          value: `Mentions someone who joined.\nUsage: \`${prefix}diajak\``,
-          inline: true,
-        },
-        {
-          name: "⏳ WhenYa",
-          value: `Provides information on 'when ya' scenarios.\nUsage: \`${prefix}whenya\``,
-          inline: true,
-        },
-        {
-          name: "🔄 GMW",
-          value: `Handles 'gmw' scenarios.\nUsage: \`${prefix}gmw\``,
-          inline: true,
-        },
-        {
-          name: "👅 Lick",
-          value: `Performs a lick action.\nUsage: \`${prefix}lick @user\``,
-          inline: true,
-        },
-        {
-          name: "🖤 Hitam",
-          value: `Performs a hitam action.\nUsage: \`${prefix}hitam [message]\``,
-          inline: true,
-        },
-        {
-          name: "🌞 Pagi",
-          value: `Performs a pagi action.\nUsage: \`${prefix}pagi\``,
-          inline: true,
-        },
-        {
-          name: "☀️ Siang",
-          value: `Performs a siang action.\nUsage: \`${prefix}siang\``,
-          inline: true,
-        },
-        {
-          name: "🌙 Malam",
-          value: `Performs a malam action.\nUsage: \`${prefix}malam\``,
-          inline: true,
-        },
-        {
-          name: "🍱 Makan",
-          value: `Performs a makan action.\nUsage: \`${prefix}makan\``,
-          inline: true,
-        },
-        {
-          name: "❓ Help",
-          value: `Displays this help message.\nUsage: \`${prefix}help\``,
-          inline: true,
-        }
+        }))
       )
       .setFooter({ text: "Use !command for more details on each command" });
 
-    message.channel.send({ embeds: [embed] });
+    await message.channel.send({ embeds: [embed] });
   }
 }
