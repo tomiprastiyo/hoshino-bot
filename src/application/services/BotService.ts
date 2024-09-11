@@ -47,6 +47,7 @@ export class BotService {
     hitam: this.handleBlackCommand.bind(this),
     pagi: this.handleMorningCommand.bind(this),
     siang: this.handleAfternoonCommand.bind(this),
+    malam: this.handleNightCommand.bind(this),
     makan: this.handleEatCommand.bind(this),
     help: this.handleHelpCommand.bind(this),
   };
@@ -377,8 +378,22 @@ export class BotService {
       (ctx, width) => {
         const word = `${text}`;
         ctx.font = "60px bold sans-serif";
+
+        // Set the fill style for the text color
         ctx.fillStyle = "#fff";
-        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 350);
+
+        // Set the stroke style for the border color
+        ctx.strokeStyle = "#000"; // White border for contrast, adjust as needed
+        ctx.lineWidth = 4; // Width of the border
+
+        const textX = width / 2 - ctx.measureText(word).width / 2;
+        const textY = 350;
+
+        // Draw the border (outline) first
+        ctx.strokeText(word, textX, textY);
+
+        // Draw the filled text on top
+        ctx.fillText(word, textX, textY);
       },
       {
         fps: 20,
@@ -506,12 +521,22 @@ export class BotService {
           (ctx, width) => {
             const word = `${text}`;
             ctx.font = "60px bold sans-serif";
+
+            // Set the fill style for the text color
             ctx.fillStyle = "#000";
-            ctx.fillText(
-              word,
-              width / 2 - ctx.measureText(word).width / 2,
-              275
-            );
+
+            // Set the stroke style for the border color
+            ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
+            ctx.lineWidth = 4; // Width of the border
+
+            const textX = width / 2 - ctx.measureText(word).width / 2;
+            const textY = 270;
+
+            // Draw the border (outline) first
+            ctx.strokeText(word, textX, textY);
+
+            // Draw the filled text on top
+            ctx.fillText(word, textX, textY);
           },
           {
             fps: 20,
@@ -529,12 +554,22 @@ export class BotService {
           (ctx, width) => {
             const word = `${text}`;
             ctx.font = "60px bold sans-serif";
+
+            // Set the fill style for the text color
             ctx.fillStyle = "#000";
-            ctx.fillText(
-              word,
-              width / 2 - ctx.measureText(word).width / 2,
-              350
-            );
+
+            // Set the stroke style for the border color
+            ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
+            ctx.lineWidth = 4; // Width of the border
+
+            const textX = width / 2 - ctx.measureText(word).width / 2;
+            const textY = 350;
+
+            // Draw the border (outline) first
+            ctx.strokeText(word, textX, textY);
+
+            // Draw the filled text on top
+            ctx.fillText(word, textX, textY);
           },
           {
             fps: 20,
@@ -581,17 +616,41 @@ export class BotService {
 
   private async handleBlackCommand(message: Message) {
     const args = message.content.split(" ");
-    let text = args[1];
+    const target = args[1];
 
+    // Determine the user to punch
+    let user;
+    if (message.mentions.users.size > 0) {
+      user = message.mentions.users.first();
+    } else if (this.client.users.cache.find((user) => user.tag === target)) {
+      user = this.client.users.cache.find((user) => user.tag === target);
+    }
+
+    // Determine the text to use
+    const text = user ? user.displayName : target;
     if (!text) return;
 
     canvasGif(
       path.join(__dirname, "../../assets/images/black.gif"),
       (ctx, width) => {
         const word = `${text} Hitam`;
-        ctx.font = "60px bold sans-serif";
+        ctx.font = "40px bold sans-serif";
+
+        // Set the fill style for the text color
         ctx.fillStyle = "#fff";
-        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 250);
+
+        // Set the stroke style for the border color
+        ctx.strokeStyle = "#000"; // White border for contrast, adjust as needed
+        ctx.lineWidth = 4; // Width of the border
+
+        const textX = width / 2 - ctx.measureText(word).width / 2;
+        const textY = 250;
+
+        // Draw the border (outline) first
+        ctx.strokeText(word, textX, textY);
+
+        // Draw the filled text on top
+        ctx.fillText(word, textX, textY);
       },
       {
         fps: 20,
@@ -612,8 +671,22 @@ export class BotService {
       (ctx, width) => {
         const word = `${text}`;
         ctx.font = "40px bold sans-serif";
+
+        // Set the fill style for the text color
         ctx.fillStyle = "#000";
-        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 210);
+
+        // Set the stroke style for the border color
+        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
+        ctx.lineWidth = 4; // Width of the border
+
+        const textX = width / 2 - ctx.measureText(word).width / 2;
+        const textY = 210;
+
+        // Draw the border (outline) first
+        ctx.strokeText(word, textX, textY);
+
+        // Draw the filled text on top
+        ctx.fillText(word, textX, textY);
       },
       {
         fps: 10,
@@ -634,8 +707,22 @@ export class BotService {
       (ctx, width) => {
         const word = `${text}`;
         ctx.font = "40px bold sans-serif";
+
+        // Set the fill style for the text color
         ctx.fillStyle = "#000";
-        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 270);
+
+        // Set the stroke style for the border color
+        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
+        ctx.lineWidth = 4; // Width of the border
+
+        const textX = width / 2 - ctx.measureText(word).width / 2;
+        const textY = 265;
+
+        // Draw the border (outline) first
+        ctx.strokeText(word, textX, textY);
+
+        // Draw the filled text on top
+        ctx.fillText(word, textX, textY);
       },
       {
         fps: 10,
@@ -643,6 +730,42 @@ export class BotService {
     ).then((buffer) => {
       const attachment = new AttachmentBuilder(buffer, {
         name: "afternoon.gif",
+      });
+      message.channel.send({ files: [attachment] });
+    });
+  }
+
+  private async handleNightCommand(message: Message) {
+    const text = "Selamat Malam";
+
+    canvasGif(
+      path.join(__dirname, "../../assets/images/night.gif"),
+      (ctx, width) => {
+        const word = `${text}`;
+        ctx.font = "40px bold sans-serif";
+
+        // Set the fill style for the text color
+        ctx.fillStyle = "#000";
+
+        // Set the stroke style for the border color
+        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
+        ctx.lineWidth = 4; // Width of the border
+
+        const textX = width / 2 - ctx.measureText(word).width / 2;
+        const textY = 265;
+
+        // Draw the border (outline) first
+        ctx.strokeText(word, textX, textY);
+
+        // Draw the filled text on top
+        ctx.fillText(word, textX, textY);
+      },
+      {
+        fps: 20,
+      }
+    ).then((buffer) => {
+      const attachment = new AttachmentBuilder(buffer, {
+        name: "night.gif",
       });
       message.channel.send({ files: [attachment] });
     });
@@ -656,8 +779,22 @@ export class BotService {
       (ctx, width) => {
         const word = `${text}`;
         ctx.font = "40px bold sans-serif";
+
+        // Set the fill style for the text color
         ctx.fillStyle = "#000";
-        ctx.fillText(word, width / 2 - ctx.measureText(word).width / 2, 275);
+
+        // Set the stroke style for the border color
+        ctx.strokeStyle = "#fff"; // White border for contrast, adjust as needed
+        ctx.lineWidth = 4; // Width of the border
+
+        const textX = width / 2 - ctx.measureText(word).width / 2;
+        const textY = 270;
+
+        // Draw the border (outline) first
+        ctx.strokeText(word, textX, textY);
+
+        // Draw the filled text on top
+        ctx.fillText(word, textX, textY);
       },
       {
         fps: 10,
@@ -756,6 +893,11 @@ export class BotService {
         {
           name: "☀️ Siang",
           value: `Performs a siang action.\nUsage: \`${prefix}siang\``,
+          inline: true,
+        },
+        {
+          name: "🌙 Malam",
+          value: `Performs a malam action.\nUsage: \`${prefix}malam\``,
           inline: true,
         },
         {
