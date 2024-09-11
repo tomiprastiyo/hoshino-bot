@@ -298,6 +298,7 @@ export class BotService {
     );
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
+    const fontSize = 80;
     const avatarSize = 200;
     const positionX = 800;
     const positionY = 250;
@@ -339,10 +340,15 @@ export class BotService {
     }
 
     // Draw the text
-    context.font = "60px bold sans-serif";
+    context.font = `${fontSize}px bold sans-serif`;
     context.fillStyle = "#fff";
+    context.strokeStyle = "#000";
+    context.lineWidth = 8;
+
     const name = cleanedContent;
     const textWidth = context.measureText(name).width;
+
+    context.strokeText(name, (canvas.width - textWidth) / 2, 700);
     context.fillText(name, (canvas.width - textWidth) / 2, 700);
 
     // Send the image
