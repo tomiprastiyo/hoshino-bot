@@ -1,10 +1,14 @@
 import { Client, Message, EmbedBuilder, AttachmentBuilder } from "discord.js";
+import { CommandRepository } from "../../domain/repositories/CommandRepository";
 import { createCanvas, loadImage } from "canvas";
 import canvasGif from "canvas-gif";
 import path from "path";
 
 export class BotService {
-  constructor(private client: Client) {}
+  constructor(
+    private client: Client,
+    private commandRepository: CommandRepository
+  ) {}
 
   public init() {
     this.client.once("ready", () => {
