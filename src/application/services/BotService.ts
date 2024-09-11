@@ -234,19 +234,23 @@ export class BotService {
     // Randomize the background
     const randomImage = Math.floor(Math.random() * 2) + 1;
 
-    const background = await loadImage(
-      path.join(__dirname, `../../assets/images/kiss/${randomImage}.jpg`)
-    );
+    // Load the background and user avatar
+    const [background, avatar] = await Promise.all([
+      loadImage(
+        path.join(__dirname, `../../assets/images/kiss/${randomImage}.jpg`)
+      ),
+      loadImage(
+        message.guild?.members.cache
+          .get(user.id)
+          ?.displayAvatarURL({ extension: "png" }) ||
+          user.displayAvatarURL({ extension: "png" })
+      ),
+    ]);
 
+    // Draw the background on the canvas
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    const avatar = await loadImage(
-      message.guild?.members.cache
-        .get(user.id)
-        ?.displayAvatarURL({ extension: "png" }) ||
-        user.displayAvatarURL({ extension: "png" }) ||
-        ""
-    );
 
+    // Draw the avatar based on the randomized background
     switch (randomImage) {
       case 1:
         context.rotate((-10 * Math.PI) / 180);
@@ -259,89 +263,89 @@ export class BotService {
         break;
     }
 
+    // Create and send the attachment
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "kiss.png",
     });
-    message.channel.send({ files: [attachment] });
+    await message.channel.send({ files: [attachment] });
   }
 
   private async handleComeCommand(message: Message) {
     const mentions = message.mentions.users;
 
-    // Remove the command prefix and mentions
+    // Extract and clean the command content
     const cleanedContent = message.content
-      .split(" ")
+      .split(/\s+/) // Split by whitespace
+      .slice(1) // Remove the command prefix
       .filter((word) => !mentions.has(word.replace(/[<@!>]/g, ""))) // Remove mentions
-      .slice(1) // Remove the command prefix (assuming the command is the first word)
-      .join(" "); // Join the remaining words back into a single string
-
-    // Clean up extra characters and normalize spaces
-    const text = cleanedContent
+      .join(" ") // Join the remaining words
       .replace(/[|_]+/g, "") // Remove | and _
       .replace(/\s+/g, " ") // Replace multiple spaces with a single space
       .trim(); // Trim leading and trailing spaces
 
-    if (text === "") return;
+    if (cleanedContent === "") return;
 
     const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
+
+    // Load background image
     const background = await loadImage(
       path.join(__dirname, "../../assets/images/come.jpg")
     );
-
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
+    const avatarSize = 200;
+    const positionX = 800;
+    const positionY = 250;
+
+    // Load and draw avatars for mentions
     if (mentions.size > 0) {
       const users = Array.from(mentions.values());
-      const avatarSize = 200;
-      const positionX = 800;
-      const positionY = 250;
-
-      for (let i = 0; i < mentions.size; i++) {
-        const avatar = await loadImage(
-          message.guild?.members.cache
-            .get(users[i].id)
-            ?.displayAvatarURL({ extension: "png" }) ||
-            users[i].displayAvatarURL({ extension: "png" }) ||
-            ""
-        );
-
-        let positionCustomX = positionX;
-        if (i > 0) {
-          positionCustomX = positionX + 100 * i;
-        }
-
-        context.drawImage(
-          avatar,
-          positionCustomX,
-          positionY,
-          avatarSize,
-          avatarSize
-        );
-      }
+      await Promise.all(
+        users.map(async (user, index) => {
+          const avatarURL =
+            message.guild?.members.cache
+              .get(user.id)
+              ?.displayAvatarURL({ extension: "png" }) ||
+            user.displayAvatarURL({ extension: "png" });
+          if (avatarURL) {
+            const avatar = await loadImage(avatarURL);
+            const positionCustomX = positionX + index * 100;
+            context.drawImage(
+              avatar,
+              positionCustomX,
+              positionY,
+              avatarSize,
+              avatarSize
+            );
+          }
+        })
+      );
     }
 
-    const avatarAuthor = await loadImage(
+    // Load and draw the author's avatar
+    const authorAvatarURL =
       message.guild?.members.cache
         .get(message.author.id)
         ?.displayAvatarURL({ extension: "png", size: 2048 }) ||
-        message.author.displayAvatarURL({ extension: "png", size: 2048 }) ||
-        ""
-    );
-    context.drawImage(avatarAuthor, 250, 275, 200, 200);
+      message.author.displayAvatarURL({ extension: "png", size: 2048 });
+    if (authorAvatarURL) {
+      const avatarAuthor = await loadImage(authorAvatarURL);
+      context.drawImage(avatarAuthor, 250, 275, 200, 200);
+    }
+
+    // Draw the text
     context.font = "60px bold sans-serif";
     context.fillStyle = "#fff";
-    const name = `${text}`;
-    context.fillText(
-      name,
-      canvas.width / 2 - context.measureText(name).width / 2,
-      700
-    );
+    const name = cleanedContent;
+    const textWidth = context.measureText(name).width;
+    context.fillText(name, (canvas.width - textWidth) / 2, 700);
 
+    // Send the image
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "come.png",
     });
-    message.channel.send({ files: [attachment] });
+    await message.channel.send({ files: [attachment] });
   }
 
   private async handleSlapCommand(message: Message) {
@@ -350,25 +354,37 @@ export class BotService {
 
     const canvas = createCanvas(1366, 768);
     const context = canvas.getContext("2d");
-    const background = await loadImage(
-      path.join(__dirname, "../../assets/images/slap.jpg")
-    );
 
+    // Load background and user avatar concurrently
+    const [background, avatarURL] = await Promise.all([
+      loadImage(path.join(__dirname, "../../assets/images/slap.jpg")),
+      (async () => {
+        return (
+          message.guild?.members.cache
+            .get(user.id)
+            ?.displayAvatarURL({ extension: "png" }) ||
+          user.displayAvatarURL({ extension: "png" })
+        );
+      })(),
+    ]);
+
+    // Draw the background
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
-    const avatar = await loadImage(
-      message.guild?.members.cache
-        .get(user.id)
-        ?.displayAvatarURL({ extension: "png" }) ||
-        user.displayAvatarURL({ extension: "png" }) ||
-        ""
-    );
-    context.rotate((5 * Math.PI) / 180);
-    context.drawImage(avatar, 125, 200, 500, 500);
 
+    // Load and draw the avatar
+    if (avatarURL) {
+      const avatar = await loadImage(avatarURL);
+      context.save(); // Save current state
+      context.rotate((5 * Math.PI) / 180);
+      context.drawImage(avatar, 125, 200, 500, 500);
+      context.restore(); // Restore original state
+    }
+
+    // Send the image
     const attachment = new AttachmentBuilder(canvas.toBuffer(), {
       name: "slap.png",
     });
-    message.channel.send({ files: [attachment] });
+    await message.channel.send({ files: [attachment] });
   }
 
   private async handleAbandonedCommand(message: Message) {
