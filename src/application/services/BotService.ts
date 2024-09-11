@@ -1,31 +1,30 @@
 import { Client, Message, EmbedBuilder, AttachmentBuilder } from "discord.js";
-import { CommandRepository } from "../../domain/repositories/CommandRepository";
 import { createCanvas, loadImage } from "canvas";
 import canvasGif from "canvas-gif";
 import path from "path";
 
 export class BotService {
-  constructor(
-    private client: Client,
-    private commandRepository: CommandRepository
-  ) {}
+  constructor(private client: Client) {}
 
   public init() {
     this.client.once("ready", () => {
-      console.log(`Connected as ${this.client.user?.tag}`);
-      console.log("Servers: ");
+      if (!this.client.user) return;
+
+      console.log(`Connected as ${this.client.user.tag}`);
+      console.log("Servers:");
+
       this.client.guilds.cache.forEach((guild) => {
         console.log(` - ${guild.name}`);
-        guild.channels.cache.forEach((channel) => {
-          console.log(` -- ${channel.name} (${channel.type}) - ${channel.id}`);
+
+        guild.channels.cache.forEach(({ name, type, id }) => {
+          console.log(`   -- ${name} (${type}) - ${id}`);
         });
-        console.log();
+
+        console.log(); // New line after each guild
       });
     });
 
-    this.client.on("messageCreate", (message: Message) =>
-      this.handleMessage(message)
-    );
+    this.client.on("messageCreate", this.handleMessage.bind(this));
   }
 
   private commandHandlers: {
@@ -53,17 +52,18 @@ export class BotService {
   };
 
   private async handleMessage(message: Message) {
-    if (message.author.bot) return;
-    if (message.author.bot) return;
+    if (
+      message.author.bot ||
+      !message.content.startsWith(process.env.PREFIX || "!")
+    )
+      return;
 
-    const prefix = process.env.PREFIX || "!";
-    if (!message.content.startsWith(prefix)) return;
+    const [command] = message.content
+      .slice((process.env.PREFIX || "!").length)
+      .trim()
+      .split(/\s+/);
+    const handler = this.commandHandlers[command?.toLowerCase() || ""];
 
-    const commandBody = message.content.slice(prefix.length);
-    const args = commandBody.split(" ");
-    const command = args.shift()?.toLowerCase();
-
-    const handler = this.commandHandlers[command || ""];
     if (handler) {
       await handler(message);
     } else {
@@ -72,28 +72,27 @@ export class BotService {
   }
 
   private async handleAvatarCommand(message: Message) {
+    const [_, mentionedUser] = message.content.split(/\s+/); // Retrieve the second argument after the command
     const user =
       message.mentions.users.first() ||
-      this.client.users.cache.find(
-        (user) => user.tag === message.content.split(" ")[1]
-      ) ||
+      this.client.users.cache.find((user) => user.tag === mentionedUser) ||
       message.author;
 
     const avatar =
       message.guild?.members.cache
         .get(user.id)
         ?.displayAvatarURL({ extension: "png", size: 2048 }) ||
-      user.displayAvatarURL({ extension: "png", size: 2048 }) ||
-      "";
+      user.displayAvatarURL({ extension: "png", size: 2048 });
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: user.tag })
       .setTitle("Direct Link")
-      .setURL(avatar || "")
+      .setURL(avatar)
       .setColor("#275BF0")
-      .setImage(avatar || "")
+      .setImage(avatar)
       .setTimestamp();
-    message.channel.send({ embeds: [embed] });
+
+    await message.channel.send({ embeds: [embed] });
   }
 
   private async handleSlamCommand(message: Message) {
