@@ -402,35 +402,32 @@ export class BotService {
     const gifPath = path.join(__dirname, "../../assets/images/abandoned.gif");
 
     try {
-      // Generate the GIF with text overlay
+      // Generate the GIF with canvas
       const buffer = await canvasGif(
         gifPath,
         (ctx, width) => {
-          const fontSize = 40;
+          ctx.font = "40px bold sans-serif";
+          ctx.fillStyle = "#000"; // Text color
+          ctx.strokeStyle = "#fff"; // Border color
+          ctx.lineWidth = 4; // Border width
+
           const textX = (width - ctx.measureText(text).width) / 2;
           const textY = 350;
 
-          ctx.font = `${fontSize}px bold sans-serif`;
-          ctx.fillStyle = "#fff";
-          ctx.strokeStyle = "#000";
-          ctx.lineWidth = 4;
-
-          // Draw the border (outline) first
+          // Draw the text with border
           ctx.strokeText(text, textX, textY);
-
-          // Draw the filled text on top
           ctx.fillText(text, textX, textY);
         },
         { fps: 20 }
       );
 
-      // Send the GIF
+      // Create and send the attachment
       const attachment = new AttachmentBuilder(buffer, {
         name: "abandoned.gif",
       });
       await message.channel.send({ files: [attachment] });
     } catch (error) {
-      console.error("Error handling abandoned command:", error);
+      console.error("Error in handleAbandonedCommand:", error);
       await message.channel.send(
         "An error occurred while processing the command."
       );
