@@ -407,8 +407,8 @@ export class BotService {
         gifPath,
         (ctx, width) => {
           ctx.font = "40px bold sans-serif";
-          ctx.fillStyle = "#000"; // Text color
-          ctx.strokeStyle = "#fff"; // Border color
+          ctx.fillStyle = "#fff"; // Text color
+          ctx.strokeStyle = "#000"; // Border color
           ctx.lineWidth = 4; // Border width
 
           const textX = (width - ctx.measureText(text).width) / 2;
