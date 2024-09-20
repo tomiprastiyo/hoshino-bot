@@ -70,8 +70,6 @@ export class BotService {
 
     if (handler) {
       await handler(message);
-    } else {
-      message.channel.send("Command not recognized.");
     }
   }
 
