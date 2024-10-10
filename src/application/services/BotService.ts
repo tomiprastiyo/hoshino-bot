@@ -52,6 +52,7 @@ export class BotService {
     siang: this.handleAfternoonCommand.bind(this),
     malam: this.handleNightCommand.bind(this),
     makan: this.handleEatCommand.bind(this),
+    bonk: this.handleBonkCommand.bind(this),
     help: this.handleHelpCommand.bind(this),
   };
 
@@ -854,6 +855,35 @@ export class BotService {
         "An error occurred while processing the command."
       );
     }
+  }
+
+  private async handleBonkCommand(message: Message) {
+    const user = message.mentions.users.first();
+    if (!user) return;
+
+    const canvas = createCanvas(1366, 768);
+    const context = canvas.getContext("2d");
+
+    // Load the background and user avatar
+    const [background, avatar] = await Promise.all([
+      loadImage(path.join(__dirname, `../../assets/images/bonk.png`)),
+      loadImage(
+        message.guild?.members.cache
+          .get(user.id)
+          ?.displayAvatarURL({ extension: "png" }) ||
+          user.displayAvatarURL({ extension: "png" })
+      ),
+    ]);
+
+    // Draw the background on the canvas
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    context.drawImage(avatar, 375, 400, 225, 225);
+
+    // Create and send the attachment
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+      name: "bonk.png",
+    });
+    await message.channel.send({ files: [attachment] });
   }
 
   private async handleHelpCommand(message: Message) {
