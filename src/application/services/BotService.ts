@@ -963,6 +963,10 @@ export class BotService {
         description: `Performs a makan action.\nUsage: \`${prefix}makan\``,
       },
       {
+        name: "😖 Bonk",
+        description: `Performs a bonk action.\nUsage: \`${prefix}bonk @user\``,
+      },
+      {
         name: "❓ Help",
         description: `Displays this help message.\nUsage: \`${prefix}help\``,
       },
